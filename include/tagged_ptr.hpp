@@ -44,4 +44,24 @@ private:
         : value(value)
     {}
 };
+
+namespace detail {
+
+template<unsigned long long>
+struct sink {};
+
+template<class T, class>
+struct aligner {
+    static constexpr auto value = 0ULL;
+};
+
+template<class T>
+struct aligner<T, sink<!alignof(T)>> {
+    static constexpr auto value = alignof(T);
+};
+
+template<class T>
+static constexpr auto align = aligner<T, sink<0>>::value;
+
+} // namespace detail
 } // namespace tagged

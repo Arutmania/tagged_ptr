@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <exception>
+#include <functional>
 #include <type_traits>
 
 #define TAGGED_CXX11 (__cplusplus >= 201103L)
@@ -199,4 +200,101 @@ private:
 
     intptr_t value;
 };
+
+template<class T, unsigned long long A, class U, unsigned long long B>
+inline bool operator ==(ptr<T, A> lhs, ptr<U, B> rhs) noexcept {
+    return lhs.get() == rhs.get();
+}
+
+template<class T, unsigned long long A>
+inline bool operator ==(ptr<T, A> lhs, std::nullptr_t) noexcept {
+    return !lhs;
+}
+
+template<class T, unsigned long long A>
+inline bool operator ==(std::nullptr_t, ptr<T, A> rhs) noexcept {
+    return !rhs;
+}
+
+
+template<class T, unsigned long long A, class U, unsigned long long B>
+inline bool operator !=(ptr<T, A> lhs, ptr<U, B> rhs) noexcept {
+    return lhs.get() != rhs.get();
+}
+
+template<class T, unsigned long long A>
+inline bool operator !=(ptr<T, A> lhs, std::nullptr_t) noexcept {
+    return static_cast<bool>(lhs);
+}
+
+template<class T, unsigned long long A>
+inline bool operator !=(std::nullptr_t, ptr<T, A> rhs) noexcept {
+    return static_cast<bool>(rhs);
+}
+
+template<class T, unsigned long long A, class U, unsigned long long B>
+inline bool operator <(ptr<T, A> lhs, ptr<U, B> rhs) noexcept {
+    return std::less<
+        typename std::common_type<
+            typename decltype(lhs)::pointer,
+            typename decltype(rhs)::pointer
+        >::type
+    >()(lhs.get(), rhs.get());
+}
+
+template<class T, unsigned long long A>
+inline bool operator <(ptr<T, A> lhs, std::nullptr_t) noexcept {
+    return std::less<typename decltype(lhs)::pointer>()(lhs.get(), nullptr);
+}
+
+template<class T, unsigned long long A>
+inline bool operator <(std::nullptr_t, ptr<T, A> rhs) noexcept {
+    return std::less<typename decltype(rhs)::pointer>()(nullptr, rhs.get());
+}
+
+template<class T, unsigned long long A, class U, unsigned long long B>
+inline bool operator <=(ptr<T, A> lhs, ptr<U, B> rhs) noexcept {
+    return !(rhs < lhs);
+}
+
+template<class T, unsigned long long A>
+inline bool operator <=(ptr<T, A> lhs, std::nullptr_t) noexcept {
+    return !(nullptr, lhs);
+}
+
+template<class T, unsigned long long A>
+inline bool operator <=(std::nullptr_t, ptr<T, A> rhs) noexcept {
+    return !(rhs < nullptr);
+}
+
+template<class T, unsigned long long A, class U, unsigned long long B>
+inline bool operator >(ptr<T, A> lhs, ptr<U, B> rhs) noexcept {
+    return rhs < lhs;
+}
+
+template<class T, unsigned long long A>
+inline bool operator >(ptr<T, A> lhs, std::nullptr_t) noexcept {
+    return nullptr < lhs;
+}
+
+template<class T, unsigned long long A>
+inline bool operator >(std::nullptr_t, ptr<T, A> rhs) noexcept {
+    return rhs < nullptr;
+}
+
+template<class T, unsigned long long A, class U, unsigned long long B>
+inline bool operator >=(ptr<T, A> lhs, ptr<U, B> rhs) noexcept {
+    return !(lhs < rhs);
+}
+
+template<class T, unsigned long long A>
+inline bool operator >=(ptr<T, A> lhs, std::nullptr_t) noexcept {
+    return !(lhs < nullptr);
+}
+
+template<class T, unsigned long long A>
+inline bool operator >=(std::nullptr_t, ptr<T, A> rhs) noexcept {
+    return !(nullptr < rhs);
+}
+
 } // namespace tagged
